@@ -32,7 +32,8 @@ public class LexicalAnalyztor {
 		}
 		
 		do {
-			if(!Character.isAlphabetic(inputParser.getLook()) && !Character.isDigit(inputParser.getLook())) { 
+			if(!Character.isAlphabetic(inputParser.getLook()) && !Character.isDigit(inputParser.getLook())
+					&& inputParser.getLook() != '.' && inputParser.getLook() != '*') {
 				break;
 			}
 			token.append(inputParser.getLook());
@@ -67,7 +68,11 @@ public class LexicalAnalyztor {
 		try {
 			Integer.parseInt(token.toString());
 		} catch (NumberFormatException e) {
-			return false;
+			try {
+				Double.parseDouble(token.toString());
+			} catch (NumberFormatException ex) {
+				return false;
+			}
 		}
 		return true;
 	}

@@ -20,8 +20,9 @@ public class App extends Application {
         Turtle turtle = new Turtle(canvas, 300, 200, 0);
      
        // InputParser inputParser = new InputParser("farba 255 0 0 op 4 [dp 100 vp 90]");
-        //InputParser inputParser = new InputParser("farba 255 0 0 bod 200");
-        InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
+        //InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
+        //InputParser inputParser = new InputParser("generuj dl*pp*lz 45 100 0.5");
+        InputParser inputParser = new InputParser("op 4 [dp 100 op 0 [vl 90] vp 90]");
     	LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
     	Interpreter interpreter = new Interpreter(lexicalAnalyztor, turtle);
     	interpreter.interpret();
