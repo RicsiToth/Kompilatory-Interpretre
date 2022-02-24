@@ -22,7 +22,7 @@ public class Turtle {
     }
 
     public void forward(double length) {
-        double nextX = x - length * Math.sin(Math.PI * 2 * angle / 360);
+        double nextX = x + length * Math.sin(Math.PI * 2 * angle / 360);
         double nextY = y - length * Math.cos(Math.PI * 2 * angle / 360);
         gc.strokeLine(x, y, nextX, nextY);
         x = nextX;
@@ -30,11 +30,11 @@ public class Turtle {
     }
 
     public void turnRight(double angle) {
-        this.angle -= angle;
+        this.angle += angle;
     }
 
     public void turnLeft(double angle) {
-        this.angle += angle;
+        this.angle -= angle;
     }
 
     public void drawSquare(double length) {
@@ -80,5 +80,21 @@ public class Turtle {
                     break;
             }
         }
+    }
+    
+    public void clean() {
+    	gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    	x = canvas.getWidth() / 2;
+    	y = canvas.getHeight() / 2;
+    	angle = 0;
+    }
+    
+    public void setStroke(Integer red, Integer green, Integer blue) {
+    	gc.setStroke(Color.rgb(red, green, blue));
+    	gc.setFill(Color.rgb(red, green, blue));
+    }
+    
+    public void drawDot(Integer radius) {
+    	gc.fillOval(x - (radius / 2), y - (radius / 2), radius, radius);
     }
 }

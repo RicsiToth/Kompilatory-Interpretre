@@ -17,20 +17,23 @@ public class App extends Application {
         // set the scene
         stage.setScene(scene);
 
-        Turtle turtle = new Turtle(canvas, 400, 400, 90);
-        InputParser inputParser = new InputParser("op 4 [dp 100 vp 90]");
+        Turtle turtle = new Turtle(canvas, 300, 200, 0);
+     
+       // InputParser inputParser = new InputParser("farba 255 0 0 op 4 [dp 100 vp 90]");
+        //InputParser inputParser = new InputParser("farba 255 0 0 bod 200");
+        InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
     	LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
     	Interpreter interpreter = new Interpreter(lexicalAnalyztor, turtle);
     	interpreter.interpret();
     	
-/*
+
     	//turtle.drawSquare(50);
         //turtle.drawTriangle(100);
         //Fraktal zo zadania uhol musi byt pre turtle 0
-        turtle.draw("dl*pp*lz", 45, 100, 0.5);
+       // turtle.draw("dl*pp*lz", 45, 100, 0.5);
         //Sierpinského trojuholník pociatocny uhol musi byt 90
         //turtle.draw("*d*dpd*dpdd", 120, 225, 0.5);
-*/
+
     	
         stage.show();
     }
