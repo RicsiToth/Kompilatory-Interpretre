@@ -1,14 +1,14 @@
 package main;
 
-public class Interpreter {
-	
+public class Compiler {
 	private LexicalAnalyztor lexicalAnalyztor;
-	private Turtle turtle;
+	private VirtualMachine virtualMachine;
+	private int addr = 0;
 	
-	public Interpreter(LexicalAnalyztor lexicalAnalyztor, Turtle turtle) {
+	public Compiler(LexicalAnalyztor lexicalAnalyztor, VirtualMachine virtualMachine) {
 		this.lexicalAnalyztor = lexicalAnalyztor;
 		this.lexicalAnalyztor.scan();
-		this.turtle = turtle;
+		this.virtualMachine = virtualMachine;
 	}
 	
 	public void interpret() {
@@ -21,10 +21,6 @@ public class Interpreter {
 					case NUMBER:
 						interpretNumber();
 						break;
-					case SPECIAL:
-						if(lexicalAnalyztor.getToken().equals("]")){
-							return;
-						}
 					default:
 						return;
 				}
@@ -51,19 +47,22 @@ public class Interpreter {
 			case "dp":
 				lexicalAnalyztor.scan();
 				check(Kind.NUMBER);
-				turtle.forward(Double.valueOf(lexicalAnalyztor.getToken()));
+				addr = virtualMachine.setMemValue(addr, Instruction.FD.ordinal());
+				addr = virtualMachine.setMemValue(addr, Integer.valueOf(lexicalAnalyztor.getToken()));
 				break;
 			case "vlavo":
 			case "vl":
 				lexicalAnalyztor.scan();
 				check(Kind.NUMBER);
-				turtle.turnLeft(Double.valueOf(lexicalAnalyztor.getToken()));
+				addr = virtualMachine.setMemValue(addr, Instruction.LT.ordinal());
+				addr = virtualMachine.setMemValue(addr, Integer.valueOf(lexicalAnalyztor.getToken()));
 				break;
 			case "vpravo":
 			case "vp":
 				lexicalAnalyztor.scan();
 				check(Kind.NUMBER);
-				turtle.turnRight(Double.valueOf(lexicalAnalyztor.getToken()));
+				addr = virtualMachine.setMemValue(addr, Instruction.RT.ordinal());
+				addr = virtualMachine.setMemValue(addr, Integer.valueOf(lexicalAnalyztor.getToken()));
 				break;
 			case "opakuj":
 			case "op":
@@ -72,7 +71,7 @@ public class Interpreter {
 				iterate(Integer.valueOf(lexicalAnalyztor.getToken()));
 				break;
 			case "zmaz":
-				turtle.clean();
+
 				break;
 			case "farba":
 				lexicalAnalyztor.scan();
@@ -87,12 +86,11 @@ public class Interpreter {
 				check(Kind.NUMBER);
 				int blue = Integer.valueOf(lexicalAnalyztor.getToken());
 				
-				turtle.setStroke(red, green, blue);
 				break;
 			case "bod":
 				lexicalAnalyztor.scan();
 				check(Kind.NUMBER);
-				turtle.drawDot(Integer.valueOf(lexicalAnalyztor.getToken()));
+
 				break;
 			case "generuj":
 				lexicalAnalyztor.scan();
@@ -167,5 +165,4 @@ public class Interpreter {
 			+ " with value '" + lexicalAnalyztor.getToken() + "'in position " + lexicalAnalyztor.getPosition());
 		}
 	}
-
 }
