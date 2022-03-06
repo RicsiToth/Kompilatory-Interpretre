@@ -6,7 +6,10 @@ public enum Instruction {
 	RT,
 	LT,
 	SET,
-	LOOP;
+	LOOP,
+	COLOR,
+	DOT,
+	CLEAR;
 	
 	public static Instruction getInstruction(int index) {
 		Instruction[] values = Instruction.values();

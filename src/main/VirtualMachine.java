@@ -12,7 +12,7 @@ public class VirtualMachine {
 	}
 
 	public void reset(int pc) {
-		if(pc < this.pc) {
+		if(pc <= this.pc) {
 			this.pc = pc;
 			terminated = false;
 		}
@@ -66,6 +66,25 @@ public class VirtualMachine {
 					pc++;
 				}
 				break;
+			case DOT:
+				pc++;
+				turtle.drawDot(mem[pc]);
+				pc++;
+				break;
+			case CLEAR:
+				turtle.clean();
+				pc++;
+				break;
+			case COLOR:
+				pc++;
+				int red = mem[pc];
+				pc++;
+				int green = mem[pc];
+				pc++;
+				int blue = mem[pc];
+				turtle.setStroke(red, green, blue);
+				pc++;
+				break;
 			default:
 				terminated = true;
 				return;
@@ -108,6 +127,25 @@ public class VirtualMachine {
 				index = mem[pc];
 				pc++;
 				System.out.println(prevPc + "   LOOP   [" + index  + "], "+ mem[pc]);
+				pc++;
+				break;
+			case DOT:
+				pc++;
+				System.out.println(prevPc + "   DOT   " + mem[pc]);
+				pc++;
+				break;
+			case CLEAR:
+				System.out.println(prevPc + "   CLEAR");
+				pc++;
+				break;
+			case COLOR:
+				pc++;
+				int red = mem[pc];
+				pc++;
+				int green = mem[pc];
+				pc++;
+				int blue = mem[pc];
+				System.out.println(prevPc + "   COLOR   " + red + ", " + green + ", " + blue);
 				pc++;
 				break;
 			default:

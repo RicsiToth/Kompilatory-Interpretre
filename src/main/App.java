@@ -50,12 +50,18 @@ public class App extends Application {
 	
 	private static void uloha4cv3(VirtualMachine vm) {
 		int addr = 0;
-		for(int i = 100; i > 0; i--) {
-			addr = vm.setMemValue(addr, Instruction.FD.ordinal());
-	    	addr = vm.setMemValue(addr, i);
-	    	addr = vm.setMemValue(addr, Instruction.RT.ordinal());
-	    	addr = vm.setMemValue(addr, 45);
-		}
+		addr = vm.setMemValue(addr, Instruction.SET.ordinal());
+		addr = vm.setMemValue(addr, 4);
+		addr = vm.setMemValue(addr, 100);
+
+		addr = vm.setMemValue(addr, Instruction.FD.ordinal());
+		addr = vm.setMemValue(addr, 100);
+		addr = vm.setMemValue(addr, Instruction.RT.ordinal());
+		addr = vm.setMemValue(addr, 45);
+
+		addr = vm.setMemValue(addr, Instruction.LOOP.ordinal());
+		addr = vm.setMemValue(addr, 4);
+		addr = vm.setMemValue(addr, 3);
 	}
 	
 	private static void uloha6cv3(VirtualMachine vm) {
@@ -81,15 +87,16 @@ public class App extends Application {
         Turtle turtle = new Turtle(canvas, 300, 200, 0);
      
         //InputParser inputParser = new InputParser("op 4 [dp 100 vp 90]");
-        InputParser inputParser = new InputParser("op 10000000 [ ]");
-        //InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
+        //InputParser inputParser = new InputParser("op 10000000 [ ]");
+        InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
         //InputParser inputParser = new InputParser("generuj dl*pp*lz 45 100 0.5");
        // InputParser inputParser = new InputParser("op 4 [dp 100 op 0 [vl 90] vp 90]");
     	LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
-    	Interpreter interpreter = new Interpreter(lexicalAnalyztor, turtle);
+
+		/*Interpreter interpreter = new Interpreter(lexicalAnalyztor, turtle);
     	long startTime1 = System.nanoTime();
     	interpreter.interpret();
-    	long endTime1 = System.nanoTime();
+    	long endTime1 = System.nanoTime();*/
 
     	//turtle.drawSquare(50);
         //turtle.drawTriangle(100);
@@ -97,14 +104,15 @@ public class App extends Application {
        // turtle.draw("dl*pp*lz", 45, 100, 0.5);
         //Sierpinskeho trojuholnik pociatocny uhol musi byt 90
         //turtle.draw("*d*dpd*dpdd", 120, 225, 0.5);
-    	
-    	VirtualMachine vm = new VirtualMachine(turtle, 100);
-    	
+
+		VirtualMachine vm = new VirtualMachine(turtle, 100);
+		Compiler compiler = new Compiler(lexicalAnalyztor, vm);
     	//uloha2cv3(vm);
     	//uloha3cv3(vm);
     	//uloha4cv3(vm);
-    	uloha6cv3(vm);
-    	vm.disassemble();
+    	//uloha6cv3(vm);
+    	compiler.compile(99);
+		vm.disassemble();
     	
     	vm.reset(0);
     	long startTime2 = System.nanoTime();
@@ -112,15 +120,18 @@ public class App extends Application {
     		vm.execute();
     	}
     	long endTime2 = System.nanoTime();
-    	
+
+	/*
     	long startTime3 = System.nanoTime();
     	for(int i = 0; i < 10000000; i++);
     	long endTime3 = System.nanoTime();
-    	
+	*/
+
+	/*
     	System.out.println("Virtual machine time: " + (endTime2 - startTime2) / 1000000 + " ms");
     	System.out.println("Interpreter time: " + (endTime1 - startTime1) / 1000000 + " ms");
     	System.out.println("Java time: " + (endTime3 - startTime3) / 1000000 + " ms");
-
+	*/
     	
         stage.show();
     }
