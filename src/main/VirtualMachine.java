@@ -1,7 +1,11 @@
 package main;
 
+import turtle.Turtle;
+
 public class VirtualMachine {
 	private int pc = 0;
+	private int addr = 0;
+	private int endAddr;
 	private boolean terminated = false;
 	private int[] mem;
 	private Turtle turtle;
@@ -9,6 +13,7 @@ public class VirtualMachine {
 	public VirtualMachine(Turtle turtle, int lenght) {
 		this.turtle = turtle;
 		mem = new int[lenght];
+		endAddr = lenght - 1;
 	}
 
 	public void reset(int pc) {
@@ -22,9 +27,26 @@ public class VirtualMachine {
 		return terminated;
 	}
 	
-	public int setMemValue(int addr, int value) {
+	public void setMemValue(int value) {
 		mem[addr] = value;
-		return addr + 1;
+		addr++;
+	}
+
+	public int getEndAddr() {
+		endAddr--;
+		return endAddr + 1;
+	}
+
+	public void setEndAddr(int endAddr) {
+		this.endAddr = endAddr;
+	}
+
+	public int getCurrentAddr() {
+		return addr;
+	}
+
+	public Turtle getTurtle() {
+		return turtle;
 	}
 	
 	public void execute() {

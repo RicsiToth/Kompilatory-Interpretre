@@ -1,5 +1,7 @@
 package main;
 
+import turtle.Turtle;
+
 public class Interpreter {
 	
 	private LexicalAnalyztor lexicalAnalyztor;
