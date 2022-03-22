@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.stage.Stage;
 import tree.*;
+import tree.turtle.Fd;
+import tree.turtle.Rt;
 import turtle.Turtle;
 
 public class App extends Application {
@@ -84,8 +86,8 @@ public class App extends Application {
 
 	private static void interpreterSpeedTest(Turtle turtle) {
 		InputParser inputParser = new InputParser("op 10000000 [ ]");
-		LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
-		Interpreter interpreter = new Interpreter(lexicalAnalyztor, turtle);
+		LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
+		Interpreter interpreter = new Interpreter(lexicalAnalyzator, turtle);
     	long startTime = System.nanoTime();
     	interpreter.interpret();
     	long endTime = System.nanoTime();
@@ -94,9 +96,9 @@ public class App extends Application {
 
 	private static void compilerSpeedTest(Turtle turtle) {
 		InputParser inputParser = new InputParser("op 10000000 [ ]");
-		LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
+		LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 		VirtualMachine vm = new VirtualMachine(turtle, 100);
-		Compiler compiler = new Compiler(lexicalAnalyztor, vm);
+		Compiler compiler = new Compiler(lexicalAnalyzator, vm);
 		compiler.compile(99);
 		vm.reset(0);
 		long startTime = System.nanoTime();
@@ -116,9 +118,9 @@ public class App extends Application {
 
 	private static void lexicalTreeSpeedTest(Turtle turtle) {
 		InputParser inputParser = new InputParser("op 10000000 [ ]");
-		LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
+		LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 		VirtualMachine vm = new VirtualMachine(turtle, 100);
-		TreeParser parser = new TreeParser(lexicalAnalyztor);
+		TreeParser parser = new TreeParser(lexicalAnalyzator);
 		Syntax tree = parser.parse();
 		long startTime = System.nanoTime();
 		tree.execute(vm);
@@ -151,20 +153,22 @@ public class App extends Application {
 		//vykresli L
 		//InputParser inputParser = new InputParser("vp 90 dp 50 vl 180 dp 50 vp 90 dp 100");
 		//Vnorene cykly
-		InputParser inputParser = new InputParser("op 10 [op 4 [dp 20 vp 90] vp 90 dp 20 vl 90]");
+		//InputParser inputParser = new InputParser("op 10 [ op 4 [ dp 20 vp 90 ] vp 90 dp 20 vl 90 ]");
         //InputParser inputParser = new InputParser("op 10000000 [ ]");
         //InputParser inputParser = new InputParser("farba 255 0 0 4 * [dp 100 vp 90]");
         //InputParser inputParser = new InputParser("generuj dl*pp*lz 45 100 0.5");
        	//InputParser inputParser = new InputParser("op 4 [dp 100 op 0 [vl 90] vp 90]");
-    	LexicalAnalyztor lexicalAnalyztor = new LexicalAnalyztor(inputParser);
+
+		InputParser inputParser = new InputParser("sqrt | - 2 ^ 3 * 2 |");
+    	LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 
 		interpreterSpeedTest(turtle);
 		compilerSpeedTest(turtle);
 		javaSpeedTest();
 		lexicalTreeSpeedTest(turtle);
-
+/*
 		VirtualMachine vm = new VirtualMachine(turtle, 100);
-		TreeParser parser = new TreeParser(lexicalAnalyztor);
+		TreeParser parser = new TreeParser(lexicalAnalyzator);
 		Syntax tree = parser.parse();
 		tree.execute(vm);
 		tree.translate(0);
@@ -184,6 +188,10 @@ public class App extends Application {
 
 		//lexicalTreeProgram(turtle);
 
+		//ExpressionInterpreter expressionInterpreter = new ExpressionInterpreter(lexicalAnalyzator);
+		TreeParser treeParser = new TreeParser(lexicalAnalyzator);
+		Syntax expression = treeParser.parseExpression();
+		System.out.println(expression.evaluate());
         stage.show();
     }
 

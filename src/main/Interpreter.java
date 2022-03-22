@@ -4,19 +4,19 @@ import turtle.Turtle;
 
 public class Interpreter {
 	
-	private LexicalAnalyztor lexicalAnalyztor;
+	private LexicalAnalyzator lexicalAnalyzator;
 	private Turtle turtle;
 	
-	public Interpreter(LexicalAnalyztor lexicalAnalyztor, Turtle turtle) {
-		this.lexicalAnalyztor = lexicalAnalyztor;
-		this.lexicalAnalyztor.scan();
+	public Interpreter(LexicalAnalyzator lexicalAnalyzator, Turtle turtle) {
+		this.lexicalAnalyzator = lexicalAnalyzator;
+		this.lexicalAnalyzator.scan();
 		this.turtle = turtle;
 	}
 	
 	public void interpret() {
 		try {
-			while (lexicalAnalyztor.getKind() != Kind.NOTHING) {
-				switch (lexicalAnalyztor.getKind()) {
+			while (lexicalAnalyzator.getKind() != Kind.NOTHING) {
+				switch (lexicalAnalyzator.getKind()) {
 					case WORD:
 						interpretWord();
 						break;
@@ -24,13 +24,13 @@ public class Interpreter {
 						interpretNumber();
 						break;
 					case SPECIAL:
-						if(lexicalAnalyztor.getToken().equals("]")){
+						if(lexicalAnalyzator.getToken().equals("]")){
 							return;
 						}
 					default:
 						return;
 				}
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 			}
 		} catch (IllegalArgumentException e) {
 			System.out.println(e);
@@ -38,9 +38,9 @@ public class Interpreter {
 	}
 
 	private void interpretNumber() {
-		Integer count = Integer.valueOf(lexicalAnalyztor.getToken());
-		lexicalAnalyztor.scan();
-		switch (lexicalAnalyztor.getToken()) {
+		Integer count = Integer.valueOf(lexicalAnalyzator.getToken());
+		lexicalAnalyzator.scan();
+		switch (lexicalAnalyzator.getToken()) {
 			case "*":
 				iterate(count);
 				break;
@@ -48,71 +48,71 @@ public class Interpreter {
 	}
 
 	private void interpretWord() {
-		switch (lexicalAnalyztor.getToken()) {
+		switch (lexicalAnalyzator.getToken()) {
 			case "dopredu":
 			case "dp":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				turtle.forward(Double.valueOf(lexicalAnalyztor.getToken()));
+				turtle.forward(Double.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "vlavo":
 			case "vl":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				turtle.turnLeft(Double.valueOf(lexicalAnalyztor.getToken()));
+				turtle.turnLeft(Double.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "vpravo":
 			case "vp":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				turtle.turnRight(Double.valueOf(lexicalAnalyztor.getToken()));
+				turtle.turnRight(Double.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "opakuj":
 			case "op":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				iterate(Integer.valueOf(lexicalAnalyztor.getToken()));
+				iterate(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "zmaz":
 				turtle.clean();
 				break;
 			case "farba":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				int red = Integer.valueOf(lexicalAnalyztor.getToken());
+				int red = Integer.valueOf(lexicalAnalyzator.getToken());
 		
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				int green = Integer.valueOf(lexicalAnalyztor.getToken());
+				int green = Integer.valueOf(lexicalAnalyzator.getToken());
 				
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				int blue = Integer.valueOf(lexicalAnalyztor.getToken());
+				int blue = Integer.valueOf(lexicalAnalyzator.getToken());
 				
 				turtle.setStroke(red, green, blue);
 				break;
 			case "bod":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				turtle.drawDot(Integer.valueOf(lexicalAnalyztor.getToken()));
+				turtle.drawDot(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "generuj":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				String commands;
 				check(Kind.WORD);
-				commands = lexicalAnalyztor.getToken();
+				commands = lexicalAnalyzator.getToken();
 
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				int	angle = Integer.valueOf(lexicalAnalyztor.getToken());
+				int	angle = Integer.valueOf(lexicalAnalyzator.getToken());
 
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				double length = Double.valueOf(lexicalAnalyztor.getToken());
+				double length = Double.valueOf(lexicalAnalyzator.getToken());
 
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER);
-				double change =  Double.valueOf(lexicalAnalyztor.getToken());
+				double change =  Double.valueOf(lexicalAnalyzator.getToken());
 
 				String generatedCode = generate(commands, angle, length, change);
 				System.out.println(generatedCode);
@@ -120,20 +120,20 @@ public class Interpreter {
 	}
 	
 	private void iterate(int count) {
-		lexicalAnalyztor.scan();
-		if(lexicalAnalyztor.getToken().equals("[")) {
-			lexicalAnalyztor.scan();
-			int start = lexicalAnalyztor.getPosition();
+		lexicalAnalyzator.scan();
+		if(lexicalAnalyzator.getToken().equals("[")) {
+			lexicalAnalyzator.scan();
+			int start = lexicalAnalyzator.getPosition();
 			for(int i = 0; i < count; i++) {
-				lexicalAnalyztor.rollbackInputParser(start);
+				lexicalAnalyzator.rollbackInputParser(start);
 				interpret();
 			}
-			while(!lexicalAnalyztor.getToken().equals("]")){
-				lexicalAnalyztor.scan();
+			while(!lexicalAnalyzator.getToken().equals("]")){
+				lexicalAnalyzator.scan();
 			}
 		} else {
-			throw new IllegalArgumentException("Expected SYMBOL '[' but got " + lexicalAnalyztor.getKind()
-					+ " with value '" + lexicalAnalyztor.getToken() + "'in position " + lexicalAnalyztor.getPosition());
+			throw new IllegalArgumentException("Expected SYMBOL '[' but got " + lexicalAnalyzator.getKind()
+					+ " with value '" + lexicalAnalyzator.getToken() + "'in position " + lexicalAnalyzator.getPosition());
 		}
 	}
 
@@ -164,9 +164,9 @@ public class Interpreter {
 	}
 	
 	private void check(Kind kind) {
-		if (lexicalAnalyztor.getKind() != kind) {
-			throw new IllegalArgumentException("Expected " + kind + " but got " + lexicalAnalyztor.getKind()
-			+ " with value '" + lexicalAnalyztor.getToken() + "'in position " + lexicalAnalyztor.getPosition());
+		if (lexicalAnalyzator.getKind() != kind) {
+			throw new IllegalArgumentException("Expected " + kind + " but got " + lexicalAnalyzator.getKind()
+			+ " with value '" + lexicalAnalyzator.getToken() + "'in position " + lexicalAnalyzator.getPosition());
 		}
 	}
 

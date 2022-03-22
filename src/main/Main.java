@@ -37,7 +37,7 @@ public class Main {
     public static void main(String[] args) {
         //parsingExercise(args[0]);
     	InputParser inputParser = new InputParser("op 4 [dp 100 vp 90]");
-    	LexicalAnalyztor l = new LexicalAnalyztor(inputParser);
+    	LexicalAnalyzator l = new LexicalAnalyzator(inputParser);
     	l.scan();
     	while(l.getKind() != Kind.NOTHING) {
     		System.out.println("Type is '" + l.getKind() + "' for '" + l.getToken() + "' and its position is '" + l.getPosition() + "'");

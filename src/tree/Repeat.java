@@ -44,4 +44,9 @@ public final class Repeat implements Syntax {
         System.out.print(new String(new char[indent]).replace("\0", " "));
         System.out.println("}");
     }
+
+    @Override
+    public int evaluate() {
+        return 0;
+    }
 }

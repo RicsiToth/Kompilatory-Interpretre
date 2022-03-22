@@ -1,9 +1,10 @@
-package tree;
+package tree.turtle;
 
 import main.Instruction;
 import main.VirtualMachine;
+import tree.Constant;
 
-public final class Fd implements Syntax {
+public final class Fd extends TurtleCommand {
 
     private Constant length;
 

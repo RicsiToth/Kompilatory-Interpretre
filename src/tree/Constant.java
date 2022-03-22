@@ -28,4 +28,9 @@ public final class Constant implements Syntax {
     public void translate(int indent) {
         System.out.print(value);
     }
+
+    @Override
+    public int evaluate() {
+        return value;
+    }
 }

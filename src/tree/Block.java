@@ -36,4 +36,9 @@ public final class Block implements Syntax {
     public void translate(int indent) {
         instructions.forEach(instruction -> instruction.translate(indent));
     }
+
+    @Override
+    public int evaluate() {
+        return 0;
+    }
 }

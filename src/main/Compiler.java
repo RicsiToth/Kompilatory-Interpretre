@@ -1,12 +1,12 @@
 package main;
 
 public class Compiler {
-	private LexicalAnalyztor lexicalAnalyztor;
+	private LexicalAnalyzator lexicalAnalyzator;
 	private VirtualMachine virtualMachine;
 	
-	public Compiler(LexicalAnalyztor lexicalAnalyztor, VirtualMachine virtualMachine) {
-		this.lexicalAnalyztor = lexicalAnalyztor;
-		this.lexicalAnalyztor.scan();
+	public Compiler(LexicalAnalyzator lexicalAnalyzator, VirtualMachine virtualMachine) {
+		this.lexicalAnalyzator = lexicalAnalyzator;
+		this.lexicalAnalyzator.scan();
 		this.virtualMachine = virtualMachine;
 	}
 
@@ -14,8 +14,8 @@ public class Compiler {
 
 	public void compile(int endOfMem) {
 		try {
-			while (lexicalAnalyztor.getKind() != Kind.NOTHING) {
-				switch (lexicalAnalyztor.getKind()) {
+			while (lexicalAnalyzator.getKind() != Kind.NOTHING) {
+				switch (lexicalAnalyzator.getKind()) {
 					case WORD:
 						compileWord(endOfMem);
 						break;
@@ -25,7 +25,7 @@ public class Compiler {
 					default:
 						return;
 				}
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 			}
 		} catch (IllegalArgumentException e) {
 			System.out.println(e);
@@ -33,9 +33,9 @@ public class Compiler {
 	}
 
 	private void compileNumber(int endOfMem) {
-		Integer count = Integer.valueOf(lexicalAnalyztor.getToken());
-		lexicalAnalyztor.scan();
-		switch (lexicalAnalyztor.getToken()) {
+		Integer count = Integer.valueOf(lexicalAnalyzator.getToken());
+		lexicalAnalyzator.scan();
+		switch (lexicalAnalyzator.getToken()) {
 			case "*":
 				iterate(count, endOfMem);
 				break;
@@ -43,50 +43,50 @@ public class Compiler {
 	}
 
 	private void compileWord(int endOfMem) {
-		switch (lexicalAnalyztor.getToken()) {
+		switch (lexicalAnalyzator.getToken()) {
 			case "dopredu":
 			case "dp":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
 				virtualMachine.setMemValue(Instruction.FD.ordinal());
-				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyztor.getToken()));
+				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "vlavo":
 			case "vl":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
 				virtualMachine.setMemValue(Instruction.LT.ordinal());
-				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyztor.getToken()));
+				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "vpravo":
 			case "vp":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
 				virtualMachine.setMemValue(Instruction.RT.ordinal());
-				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyztor.getToken()));
+				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 			case "opakuj":
 			case "op":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
-				iterate(Integer.valueOf(lexicalAnalyztor.getToken()), endOfMem);
+				iterate(Integer.valueOf(lexicalAnalyzator.getToken()), endOfMem);
 				break;
 			case "zmaz":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				virtualMachine.setMemValue(Instruction.CLEAR.ordinal());
 				break;
 			case "farba":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
-				int red = Integer.valueOf(lexicalAnalyztor.getToken());
+				int red = Integer.valueOf(lexicalAnalyzator.getToken());
 		
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
-				int green = Integer.valueOf(lexicalAnalyztor.getToken());
+				int green = Integer.valueOf(lexicalAnalyzator.getToken());
 				
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
-				int blue = Integer.valueOf(lexicalAnalyztor.getToken());
+				int blue = Integer.valueOf(lexicalAnalyzator.getToken());
 
 				virtualMachine.setMemValue(Instruction.COLOR.ordinal());
 				virtualMachine.setMemValue(red);
@@ -94,18 +94,18 @@ public class Compiler {
 				virtualMachine.setMemValue(blue);
 				break;
 			case "bod":
-				lexicalAnalyztor.scan();
+				lexicalAnalyzator.scan();
 				check(Kind.NUMBER, "");
 				virtualMachine.setMemValue(Instruction.DOT.ordinal());
-				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyztor.getToken()));
+				virtualMachine.setMemValue(Integer.valueOf(lexicalAnalyzator.getToken()));
 				break;
 		}
 	}
 	
 	private void iterate(int count, int endOfMem) {
-		lexicalAnalyztor.scan();
+		lexicalAnalyzator.scan();
 		check(Kind.SPECIAL, "[");
-		lexicalAnalyztor.scan();
+		lexicalAnalyzator.scan();
 		virtualMachine.setMemValue(Instruction.SET.ordinal());
 		virtualMachine.setMemValue(endOfMem);
 		virtualMachine.setMemValue(count);
@@ -118,14 +118,14 @@ public class Compiler {
 	}
 	
 	private void check(Kind kind, String value) {
-		if (lexicalAnalyztor.getKind() != kind) {
-			throw new IllegalArgumentException("Expected " + kind + " but got " + lexicalAnalyztor.getKind()
-			+ " with value '" + lexicalAnalyztor.getToken() + "'in position " + lexicalAnalyztor.getPosition());
+		if (lexicalAnalyzator.getKind() != kind) {
+			throw new IllegalArgumentException("Expected " + kind + " but got " + lexicalAnalyzator.getKind()
+			+ " with value '" + lexicalAnalyzator.getToken() + "'in position " + lexicalAnalyzator.getPosition());
 		}
 		if(kind == Kind.SPECIAL && !value.isEmpty()){
 			if(!value.equals("]") && !value.equals("[")) {
-				throw new IllegalArgumentException("Expected opening or closing bracket but got " + lexicalAnalyztor.getKind()
-						+ " with value '" + lexicalAnalyztor.getToken() + "'in position " + lexicalAnalyztor.getPosition());
+				throw new IllegalArgumentException("Expected opening or closing bracket but got " + lexicalAnalyzator.getKind()
+						+ " with value '" + lexicalAnalyzator.getToken() + "'in position " + lexicalAnalyzator.getPosition());
 			}
 		}
 
