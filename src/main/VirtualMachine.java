@@ -1,26 +1,29 @@
 package main;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import turtle.Turtle;
 
 public class VirtualMachine {
 	private int pc = 0;
 	private int addr = 0;
-	private int endAddr;
+	private int top;
 	private boolean terminated = false;
 	private int[] mem;
+	private final Map<String, Integer> variables = new HashMap<>();
 	private Turtle turtle;
 	
 	public VirtualMachine(Turtle turtle, int lenght) {
 		this.turtle = turtle;
 		mem = new int[lenght];
-		endAddr = lenght - 1;
+		top = lenght - 1;
 	}
 
-	public void reset(int pc) {
-		if(pc <= this.pc) {
-			this.pc = pc;
-			terminated = false;
-		}
+	public void reset() {
+		this.pc = 0;
+		terminated = false;
+		top = mem.length - 1;
 	}
 	
 	public boolean isTerminated() {
@@ -31,15 +34,33 @@ public class VirtualMachine {
 		mem[addr] = value;
 		addr++;
 	}
+	
+	public void initMemForVariables() {
+		setMemValue(Instruction.JUMP.ordinal());
+		setMemValue(2 + getVariablesLength());
+		addr += getVariablesLength();
+	}
+	
+	public void addVariable(String name, Integer value) {
+		variables.put(name, value);
+	}
+	
+	public Integer getVariable(String name) {
+		return variables.get(name);
+	}
+	
+	public int getVariablesLength() {
+		return variables.keySet().size();
+	}
 
-	public int getEndAddr() {
+	/*public int getEndAddr() {
 		endAddr--;
 		return endAddr + 1;
 	}
 
 	public void setEndAddr(int endAddr) {
 		this.endAddr = endAddr;
-	}
+	}*/
 
 	public int getCurrentAddr() {
 		return addr;
@@ -52,20 +73,42 @@ public class VirtualMachine {
 	public void execute() {
 		int index;
 		switch(Instruction.getInstruction(mem[pc])) {
-			case FD:
+			case PUSH:
 				pc++;
-				turtle.forward(mem[pc]);
-				pc++;
-				break;
-			case LT:
-				pc++;
-				turtle.turnLeft(mem[pc]);
+				top--;
+				mem[top] = mem[pc];
 				pc++;
 				break;
-			case RT:
+			case MINUS:
 				pc++;
-				turtle.turnRight(mem[pc]);
+				mem[top] *= -1;
+				break;
+			case ADD:
 				pc++;
+				mem[top + 1] += mem[top];
+				top++;
+				break;
+			case SUB:
+				pc++;
+				mem[top + 1] -= mem[top];
+				top++;
+				break;
+			case MUL:
+				pc++;
+				mem[top + 1] *= mem[top];
+				top++;
+				break;
+			case DIV:
+				pc++;
+				mem[top + 1] /= mem[top];
+				top++;
+				break;
+			case GET:
+				pc++;
+				index = mem[pc];
+				pc++;
+				top--;
+				mem[top] = mem[index];
 				break;
 			case SET:
 				pc++;
@@ -73,8 +116,31 @@ public class VirtualMachine {
 				index = mem[pc];
 				pc++;
 				//Setting the counter to the address
-				mem[index] = mem[pc];
+				mem[index] = mem[top];
+				top++;
+				break;	
+			case PRINT:
 				pc++;
+				System.out.println(mem[top]);
+				top++;
+				break;
+			case JUMP:
+				pc = mem[pc + 1];
+				break;
+			case FD:
+				pc++;
+				turtle.forward(mem[top]);
+				top++;
+				break;
+			case LT:
+				pc++;
+				turtle.turnLeft(mem[top]);
+				top++;
+				break;
+			case RT:
+				pc++;
+				turtle.turnRight(mem[top]);
+				top++;
 				break;
 			case LOOP:
 				pc++;
@@ -114,7 +180,7 @@ public class VirtualMachine {
 	}
 	
 	public void disassemble() {
-		reset(0);
+		reset();
 		int index;
 		while(!terminated) {
 			int prevPc = pc;
@@ -175,7 +241,7 @@ public class VirtualMachine {
 				break;
 			}	
 		}
-		reset(0);
+		reset();
 	}
 	
 }

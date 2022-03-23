@@ -22,15 +22,15 @@ public final class Repeat implements Syntax {
 
     @Override
     public void generate(VirtualMachine vm) {
-        int endOfMem = vm.getEndAddr();
+       // int endOfMem = vm.getEndAddr();
         vm.setMemValue(Instruction.SET.ordinal());
-        vm.setMemValue(endOfMem);
+      //  vm.setMemValue(endOfMem);
         count.generate(vm);
         int addr = vm.getCurrentAddr();
         block.generate(vm);
-        vm.setEndAddr(endOfMem);
+     //   vm.setEndAddr(endOfMem);
         vm.setMemValue(Instruction.LOOP.ordinal());
-        vm.setMemValue(endOfMem);
+       // vm.setMemValue(endOfMem);
         vm.setMemValue(addr);
     }
 

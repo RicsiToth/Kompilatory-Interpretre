@@ -19,8 +19,8 @@ public final class Lt extends TurtleCommand {
 
     @Override
     public void generate(VirtualMachine vm) {
+    	angle.generate(vm);
         vm.setMemValue(Instruction.LT.ordinal());
-        angle.generate(vm);
     }
 
     @Override

@@ -100,7 +100,7 @@ public class App extends Application {
 		VirtualMachine vm = new VirtualMachine(turtle, 100);
 		Compiler compiler = new Compiler(lexicalAnalyzator, vm);
 		compiler.compile(99);
-		vm.reset(0);
+		vm.reset();
 		long startTime = System.nanoTime();
 		while(!vm.isTerminated()) {
 			vm.execute();
@@ -120,7 +120,7 @@ public class App extends Application {
 		InputParser inputParser = new InputParser("op 10000000 [ ]");
 		LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 		VirtualMachine vm = new VirtualMachine(turtle, 100);
-		TreeParser parser = new TreeParser(lexicalAnalyzator);
+		TreeParser parser = new TreeParser(lexicalAnalyzator, vm);
 		Syntax tree = parser.parse();
 		long startTime = System.nanoTime();
 		tree.execute(vm);
@@ -159,9 +159,13 @@ public class App extends Application {
         //InputParser inputParser = new InputParser("generuj dl*pp*lz 45 100 0.5");
        	//InputParser inputParser = new InputParser("op 4 [dp 100 op 0 [vl 90] vp 90]");
 
-		InputParser inputParser = new InputParser("sqrt | - 2 ^ 3 * 2 |");
+		//InputParser inputParser = new InputParser("sqrt | - 2 ^ 3 * 2 |");
+		//InputParser inputParser = new InputParser("a = 123 vypis a");
+		//InputParser inputParser = new InputParser("a = 123 b = 12 c = a a = b b = c vypis a vypis b");
+        //InputParser inputParser = new InputParser("a = 10 a = a * a vypis a");
+        InputParser inputParser = new InputParser("d = 2 opakuj 100 [ dopredu d vpravo 91 d = d + 2 ]");
     	LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
-
+/*
 		interpreterSpeedTest(turtle);
 		compilerSpeedTest(turtle);
 		javaSpeedTest();
@@ -189,9 +193,21 @@ public class App extends Application {
 		//lexicalTreeProgram(turtle);
 
 		//ExpressionInterpreter expressionInterpreter = new ExpressionInterpreter(lexicalAnalyzator);
-		TreeParser treeParser = new TreeParser(lexicalAnalyzator);
-		Syntax expression = treeParser.parseExpression();
-		System.out.println(expression.evaluate());
+		//TreeParser treeParser = new TreeParser(lexicalAnalyzator);
+		//Syntax expression = treeParser.parseExpression();
+		//System.out.println(expression.evaluate());
+		
+		VirtualMachine vm = new VirtualMachine(turtle, 1000);
+		TreeParser treeParser = new TreeParser(lexicalAnalyzator, vm);
+		Syntax program = treeParser.parse();
+		vm.initMemForVariables();
+		program.generate(vm);
+		
+		vm.reset();
+    	while(!vm.isTerminated()) {
+    		vm.execute();
+    	}
+		
         stage.show();
     }
 

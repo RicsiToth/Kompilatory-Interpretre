@@ -1,5 +1,6 @@
 package tree;
 
+import main.Instruction;
 import main.VirtualMachine;
 
 public final class Constant implements Syntax {
@@ -21,6 +22,7 @@ public final class Constant implements Syntax {
 
     @Override
     public void generate(VirtualMachine vm) {
+    	vm.setMemValue(Instruction.PUSH.ordinal());
         vm.setMemValue(value);
     }
 

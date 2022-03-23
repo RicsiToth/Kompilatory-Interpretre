@@ -19,8 +19,8 @@ public final class Fd extends TurtleCommand {
 
     @Override
     public void generate(VirtualMachine vm) {
+    	length.generate(vm);
         vm.setMemValue(Instruction.FD.ordinal());
-        length.generate(vm);
     }
 
     @Override

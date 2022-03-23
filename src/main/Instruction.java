@@ -2,10 +2,27 @@ package main;
 
 public enum Instruction {
 	BAD,
+	
+	//Stack instructions
+	PUSH,
+	
+	//Arithmetic instructions
+	MINUS,
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	
+	//Variable operations
+	GET,
+	SET,
+	PRINT,
+	JUMP,
+	
+	//Turtle commands and loop
 	FD,
 	RT,
 	LT,
-	SET,
 	LOOP,
 	COLOR,
 	DOT,

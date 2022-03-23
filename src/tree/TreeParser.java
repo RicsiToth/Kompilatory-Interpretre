@@ -2,6 +2,8 @@ package tree;
 
 import main.Kind;
 import main.LexicalAnalyzator;
+import main.VirtualMachine;
+import sun.swing.PrintColorUIResource;
 import tree.binary.arithmetic.*;
 import tree.binary.logical.And;
 import tree.binary.logical.Or;
@@ -14,16 +16,22 @@ import tree.unary.*;
 public class TreeParser {
 
     private LexicalAnalyzator lexicalAnalyzator;
+    private VirtualMachine vm;
 
-    public TreeParser(LexicalAnalyzator lexicalAnalyzator) {
+    public TreeParser(LexicalAnalyzator lexicalAnalyzator, VirtualMachine vm) {
         this.lexicalAnalyzator = lexicalAnalyzator;
         lexicalAnalyzator.scan();
+        this.vm = vm;
     }
 
     public Block parse() {
         Block result = new Block();
         while(lexicalAnalyzator.getKind() == Kind.WORD) {
             switch (lexicalAnalyzator.getToken()) {
+	            case "vypis":
+	            	lexicalAnalyzator.scan();
+	            	result.add(new Print(parseOr()));
+	            	break;
                 case "dopredu":
                 case "dp":
                     lexicalAnalyzator.scan();
@@ -57,6 +65,15 @@ public class TreeParser {
                     check(Kind.SPECIAL, "]");
                     lexicalAnalyzator.scan();
                     break;
+                default:
+                	String name = lexicalAnalyzator.getToken();
+                	lexicalAnalyzator.scan();
+                	check(Kind.SPECIAL, "=");
+                	lexicalAnalyzator.scan();
+                	result.add(new Assign(new Variable(name), parseOr()));
+                	if(vm.getVariable(name) == null) {
+                		vm.addVariable(name, 2 + vm.getVariablesLength());
+                	}
             }
         }
         return result;
@@ -151,7 +168,7 @@ public class TreeParser {
 
     private Syntax parseAbsolute() {
         if(!lexicalAnalyzator.getToken().equals("|")) {
-            return number();
+            return operand();
         }
         lexicalAnalyzator.scan();
         Syntax result = parseAddOrSub();
@@ -213,6 +230,19 @@ public class TreeParser {
         }
         lexicalAnalyzator.scan();
         return new Minus(parseBraces());
+    }
+    
+    private Syntax operand() {
+    	 if (lexicalAnalyzator.getKind() == Kind.WORD) {
+    		if(vm.getVariable(lexicalAnalyzator.getToken()) == null) {
+    			throw new IllegalArgumentException("There is no variable with name " + lexicalAnalyzator.getToken());
+    		}
+    		Syntax result = new Variable(lexicalAnalyzator.getToken());
+    		lexicalAnalyzator.scan();
+    		return result;
+    	} else {
+    		return number();
+    	}
     }
 
     private Syntax number() {

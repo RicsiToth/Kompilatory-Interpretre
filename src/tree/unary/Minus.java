@@ -1,5 +1,6 @@
 package tree.unary;
 
+import main.Instruction;
 import main.VirtualMachine;
 import tree.Syntax;
 
@@ -16,7 +17,8 @@ public class Minus extends UnaryOperation {
 
     @Override
     public void generate(VirtualMachine vm) {
-
+    	variable.generate(vm);
+    	vm.setMemValue(Instruction.MINUS.ordinal());
     }
 
     @Override
