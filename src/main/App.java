@@ -163,7 +163,7 @@ public class App extends Application {
 		//InputParser inputParser = new InputParser("a = 123 vypis a");
 		//InputParser inputParser = new InputParser("a = 123 b = 12 c = a a = b b = c vypis a vypis b");
         //InputParser inputParser = new InputParser("a = 10 a = a * a vypis a");
-        InputParser inputParser = new InputParser("d = 2 opakuj 100 [ dopredu d vpravo 91 d = d + 2 ]");
+        InputParser inputParser = new InputParser("n = 3 opakuj 2 [ opakuj n [ dopredu 300 / n vpravo 360 / n ] n = n + 1 ]");
     	LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 /*
 		interpreterSpeedTest(turtle);

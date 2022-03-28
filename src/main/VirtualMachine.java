@@ -17,13 +17,13 @@ public class VirtualMachine {
 	public VirtualMachine(Turtle turtle, int lenght) {
 		this.turtle = turtle;
 		mem = new int[lenght];
-		top = lenght - 1;
+		top = lenght;
 	}
 
 	public void reset() {
 		this.pc = 0;
 		terminated = false;
-		top = mem.length - 1;
+		top = mem.length;
 	}
 	
 	public boolean isTerminated() {
@@ -145,13 +145,12 @@ public class VirtualMachine {
 			case LOOP:
 				pc++;
 				//Get the address where the counter is
-				index = mem[pc];
-				pc++;
-				mem[index] = mem[index] - 1;
-				if(mem[index] > 0) {
+				mem[top]--;
+				if(mem[top] > 0) {
 					pc = mem[pc];
 				} else {
 					pc++;
+					top++;
 				}
 				break;
 			case DOT:

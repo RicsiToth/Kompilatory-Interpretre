@@ -35,33 +35,25 @@ public class TreeParser {
                 case "dopredu":
                 case "dp":
                     lexicalAnalyzator.scan();
-                    check(Kind.NUMBER, "");
-                    result.add(new Fd(new Constant(Integer.valueOf(lexicalAnalyzator.getToken()))));
-                    lexicalAnalyzator.scan();
+                    result.add(new Fd(parseOr()));
                     break;
                 case "vlavo":
                 case "vl":
                     lexicalAnalyzator.scan();
-                    check(Kind.NUMBER, "");
-                    result.add(new Lt(new Constant(Integer.valueOf(lexicalAnalyzator.getToken()))));
-                    lexicalAnalyzator.scan();
+                    result.add(new Lt(parseOr()));
                     break;
                 case "vpravo":
                 case "vp":
                     lexicalAnalyzator.scan();
-                    check(Kind.NUMBER, "");
-                    result.add(new Rt(new Constant(Integer.valueOf(lexicalAnalyzator.getToken()))));
-                    lexicalAnalyzator.scan();
+                    result.add(new Rt(parseOr()));
                     break;
                 case "opakuj":
                 case "op":
                     lexicalAnalyzator.scan();
-                    check(Kind.NUMBER, "");
-                    Constant count = new Constant(Integer.valueOf(lexicalAnalyzator.getToken()));
-                    lexicalAnalyzator.scan();
+                    Syntax countExpression = parseOr();
                     check(Kind.SPECIAL, "[");
                     lexicalAnalyzator.scan();
-                    result.add(new Repeat(count, parse()));
+                    result.add(new Repeat(countExpression, parse()));
                     check(Kind.SPECIAL, "]");
                     lexicalAnalyzator.scan();
                     break;

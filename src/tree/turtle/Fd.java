@@ -2,31 +2,31 @@ package tree.turtle;
 
 import main.Instruction;
 import main.VirtualMachine;
-import tree.Constant;
+import tree.Syntax;
 
 public final class Fd extends TurtleCommand {
 
-    private Constant length;
+    private Syntax expression;
 
-    public Fd(Constant length) {
-        this.length = length;
+    public Fd(Syntax expression) {
+        this.expression = expression;
     }
 
     @Override
     public void execute(VirtualMachine vm) {
-        vm.getTurtle().forward(length.getValue());
+        vm.getTurtle().forward(expression.evaluate());
     }
 
     @Override
     public void generate(VirtualMachine vm) {
-    	length.generate(vm);
+    	expression.generate(vm);
         vm.setMemValue(Instruction.FD.ordinal());
     }
 
     @Override
     public void translate(int indent) {
         System.out.print(new String(new char[indent]).replace("\0", " ") + "dopredu(");
-        length.translate(indent);
+        expression.translate(indent);
         System.out.println(");");
     }
 }

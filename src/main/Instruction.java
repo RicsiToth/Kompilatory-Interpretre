@@ -1,32 +1,32 @@
 package main;
 
 public enum Instruction {
-	BAD,
+	BAD, 	// 0
 	
 	//Stack instructions
-	PUSH,
+	PUSH,	// 1
 	
 	//Arithmetic instructions
-	MINUS,
-	ADD,
-	SUB,
-	MUL,
-	DIV,
-	
+	MINUS,	// 2
+	ADD,	// 3
+	SUB,	// 4
+	MUL,	// 5
+	DIV,	// 6
+
 	//Variable operations
-	GET,
-	SET,
-	PRINT,
-	JUMP,
+	GET,	// 7
+	SET,	// 8
+	PRINT,	// 9
+	JUMP,	// 10
 	
 	//Turtle commands and loop
-	FD,
-	RT,
-	LT,
-	LOOP,
-	COLOR,
-	DOT,
-	CLEAR;
+	FD,		// 11
+	RT,		// 12
+	LT,		// 13
+	LOOP,	// 14
+	COLOR,	// 15
+	DOT,	// 16
+	CLEAR;	// 17
 	
 	public static Instruction getInstruction(int index) {
 		Instruction[] values = Instruction.values();

@@ -2,24 +2,24 @@ package tree.turtle;
 
 import main.Instruction;
 import main.VirtualMachine;
-import tree.Constant;
+import tree.Syntax;
 
 public final class Lt extends TurtleCommand {
 
-    private Constant angle;
+    private Syntax expression;
 
-    public Lt(Constant angle) {
-        this.angle = angle;
+    public Lt(Syntax expression) {
+        this.expression = expression;
     }
 
     @Override
     public void execute(VirtualMachine vm) {
-        vm.getTurtle().turnLeft(angle.getValue());
+        vm.getTurtle().turnLeft(expression.evaluate());
     }
 
     @Override
     public void generate(VirtualMachine vm) {
-    	angle.generate(vm);
+        expression.generate(vm);
         vm.setMemValue(Instruction.LT.ordinal());
     }
 
@@ -27,7 +27,7 @@ public final class Lt extends TurtleCommand {
     public void translate(int indent) {
         System.out.print(new String(new char[indent]).replace("\0", " "));
         System.out.print("dolava(");
-        angle.translate(indent);
+        expression.translate(indent);
         System.out.println(");");
     }
 }
