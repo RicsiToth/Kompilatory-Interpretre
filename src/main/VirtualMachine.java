@@ -3,6 +3,7 @@ package main;
 import java.util.HashMap;
 import java.util.Map;
 
+import tree.Subroutine;
 import turtle.Turtle;
 
 public class VirtualMachine {
@@ -12,12 +13,13 @@ public class VirtualMachine {
 	private boolean terminated = false;
 	private int[] mem;
 	private final Map<String, Integer> variables = new HashMap<>();
+	private final Map<String, Subroutine> subroutines = new HashMap<>();
 	private Turtle turtle;
 	
-	public VirtualMachine(Turtle turtle, int lenght) {
+	public VirtualMachine(Turtle turtle, int length) {
 		this.turtle = turtle;
-		mem = new int[lenght];
-		top = lenght;
+		mem = new int[length];
+		top = length;
 	}
 
 	public void reset() {
@@ -33,6 +35,10 @@ public class VirtualMachine {
 	public void setMemValue(int value) {
 		mem[addr] = value;
 		addr++;
+	}
+
+	public void setMemValueToAddr(int addr, int value) {
+		mem[addr] = value;
 	}
 	
 	public void initMemForVariables() {
@@ -51,6 +57,14 @@ public class VirtualMachine {
 	
 	public int getVariablesLength() {
 		return variables.keySet().size();
+	}
+
+	public Subroutine getSubroutine(String name) {
+		return subroutines.get(name);
+	}
+
+	public void addSubroutine(String name, Subroutine subroutine) {
+		subroutines.put(name, subroutine);
 	}
 
 	/*public int getEndAddr() {
@@ -79,6 +93,58 @@ public class VirtualMachine {
 				mem[top] = mem[pc];
 				pc++;
 				break;
+			case AND:
+				pc++;
+				mem[top + 1] *= mem[top];
+				mem[top] = 0;
+				top++;
+				break;
+			case OR:
+				pc++;
+				mem[top + 1] = (mem[top + 1] + mem[top]) % 2;
+				mem[top] = 0;
+				top++;
+				break;
+			case NOT:
+				pc++;
+				mem[top] = (mem[top] + 1) % 2;
+				break;
+			case LOWER:
+				pc++;
+				mem[top + 1] = mem[top + 1] < mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
+			case LOWER_EQUAL:
+				pc++;
+				mem[top + 1] = mem[top + 1] <= mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
+			case EQUAL:
+				pc++;
+				mem[top + 1] = mem[top + 1] == mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
+			case DIFFERENT:
+				pc++;
+				mem[top + 1] = mem[top + 1] != mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
+			case GREATER:
+				pc++;
+				mem[top + 1] = mem[top + 1] > mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
+			case GREATER_EQUAL:
+				pc++;
+				mem[top + 1] = mem[top + 1] >= mem[top] ? 1 : 0;
+				mem[top] = 0;
+				top++;
+				break;
 			case MINUS:
 				pc++;
 				mem[top] *= -1;
@@ -86,21 +152,25 @@ public class VirtualMachine {
 			case ADD:
 				pc++;
 				mem[top + 1] += mem[top];
+				mem[top] = 0;
 				top++;
 				break;
 			case SUB:
 				pc++;
 				mem[top + 1] -= mem[top];
+				mem[top] = 0;
 				top++;
 				break;
 			case MUL:
 				pc++;
 				mem[top + 1] *= mem[top];
+				mem[top] = 0;
 				top++;
 				break;
 			case DIV:
 				pc++;
 				mem[top + 1] /= mem[top];
+				mem[top] = 0;
 				top++;
 				break;
 			case GET:
@@ -117,11 +187,13 @@ public class VirtualMachine {
 				pc++;
 				//Setting the counter to the address
 				mem[index] = mem[top];
+				mem[top] = 0;
 				top++;
 				break;	
 			case PRINT:
 				pc++;
 				System.out.println(mem[top]);
+				mem[top] = 0;
 				top++;
 				break;
 			case JUMP:
@@ -130,16 +202,19 @@ public class VirtualMachine {
 			case FD:
 				pc++;
 				turtle.forward(mem[top]);
+				mem[top] = 0;
 				top++;
 				break;
 			case LT:
 				pc++;
 				turtle.turnLeft(mem[top]);
+				mem[top] = 0;
 				top++;
 				break;
 			case RT:
 				pc++;
 				turtle.turnRight(mem[top]);
+				mem[top] = 0;
 				top++;
 				break;
 			case LOOP:
@@ -149,6 +224,7 @@ public class VirtualMachine {
 				if(mem[top] > 0) {
 					pc = mem[pc];
 				} else {
+					mem[top] = 0;
 					pc++;
 					top++;
 				}
@@ -171,6 +247,27 @@ public class VirtualMachine {
 				int blue = mem[pc];
 				turtle.setStroke(red, green, blue);
 				pc++;
+				break;
+			case JUMP_IF_FALSE:
+				pc++;
+				if(mem[top] == 0) {
+					pc = mem[pc];
+				} else {
+					pc++;
+				}
+				mem[top] = 0;
+				top++;
+				break;
+			case CALL:
+				pc++;
+				top--;
+				mem[top] = pc + 1;
+				pc = mem[pc];
+				break;
+			case RETURN:
+				pc = mem[top];
+				mem[top] = 0;
+				top++;
 				break;
 			default:
 				terminated = true;

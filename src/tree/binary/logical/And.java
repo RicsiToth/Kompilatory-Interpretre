@@ -1,5 +1,6 @@
 package tree.binary.logical;
 
+import main.Instruction;
 import main.VirtualMachine;
 import tree.Syntax;
 import tree.binary.BinaryOperation;
@@ -17,7 +18,9 @@ public class And extends BinaryOperation {
 
     @Override
     public void generate(VirtualMachine vm) {
-
+        left.generate(vm);
+        right.generate(vm);
+        vm.setMemValue(Instruction.AND.ordinal());
     }
 
     @Override

@@ -8,6 +8,7 @@ import tree.binary.arithmetic.*;
 import tree.binary.logical.And;
 import tree.binary.logical.Or;
 import tree.binary.relational.*;
+import tree.ternary.IfExpression;
 import tree.turtle.Fd;
 import tree.turtle.Lt;
 import tree.turtle.Rt;
@@ -30,42 +31,108 @@ public class TreeParser {
             switch (lexicalAnalyzator.getToken()) {
 	            case "vypis":
 	            	lexicalAnalyzator.scan();
-	            	result.add(new Print(parseOr()));
+	            	result.add(new Print(parseExpression()));
 	            	break;
                 case "dopredu":
                 case "dp":
                     lexicalAnalyzator.scan();
-                    result.add(new Fd(parseOr()));
+                    result.add(new Fd(parseExpression()));
                     break;
                 case "vlavo":
                 case "vl":
                     lexicalAnalyzator.scan();
-                    result.add(new Lt(parseOr()));
+                    result.add(new Lt(parseExpression()));
                     break;
                 case "vpravo":
                 case "vp":
                     lexicalAnalyzator.scan();
-                    result.add(new Rt(parseOr()));
+                    result.add(new Rt(parseExpression()));
                     break;
                 case "opakuj":
                 case "op":
                     lexicalAnalyzator.scan();
-                    Syntax countExpression = parseOr();
+                    Syntax countExpression = parseExpression();
                     check(Kind.SPECIAL, "[");
                     lexicalAnalyzator.scan();
                     result.add(new Repeat(countExpression, parse()));
                     check(Kind.SPECIAL, "]");
                     lexicalAnalyzator.scan();
                     break;
+                case "ak":
+                    lexicalAnalyzator.scan();
+                    Syntax ifCondition = parseExpression();
+                    check(Kind.SPECIAL, "[");
+                    lexicalAnalyzator.scan();
+                    Syntax bodyForTrue = parse();
+                    check(Kind.SPECIAL, "]");
+                    lexicalAnalyzator.scan();
+                    Syntax bodyForFalse = null;
+                    if(lexicalAnalyzator.getToken().equals("[")) {
+                        lexicalAnalyzator.scan();
+                        bodyForFalse = parse();
+                        check(Kind.SPECIAL, "]");
+                        lexicalAnalyzator.scan();
+                    }
+                    result.add(new If(ifCondition, bodyForTrue, bodyForFalse));
+                    break;
+                case "kym":
+                    lexicalAnalyzator.scan();
+                    Syntax whileCondition = parseExpression();
+                    check(Kind.SPECIAL, "[");
+                    lexicalAnalyzator.scan();
+                    result.add(new While(whileCondition, parse()));
+                    check(Kind.SPECIAL, "]");
+                    lexicalAnalyzator.scan();
+                    break;
+                case "definuj":
+                    lexicalAnalyzator.scan();
+                    check(Kind.WORD, "");
+                    String subroutineName = lexicalAnalyzator.getToken();
+                    if (vm.getSubroutine(subroutineName) != null || vm.getVariable(subroutineName) != null) {
+                        throw new IllegalArgumentException(subroutineName + " is already in use!");
+                    }
+                    lexicalAnalyzator.scan();
+                    check(Kind.SPECIAL, "[");
+                    lexicalAnalyzator.scan();
+                    Subroutine subroutine = new Subroutine();
+                    vm.addSubroutine(subroutineName, subroutine);
+                    subroutine.setBody(parse());
+                    check(Kind.SPECIAL, "]");
+                    lexicalAnalyzator.scan();
+                    result.add(subroutine);
+                    break;
+                case "pre":
+                    lexicalAnalyzator.scan();
+                    check(Kind.WORD, "");
+                    String variableName = lexicalAnalyzator.getToken();
+                    Syntax from = parse();
+                    check(Kind.SPECIAL, "...");
+                    lexicalAnalyzator.scan();
+                    Syntax to = parseExpression();
+                    check(Kind.SPECIAL, "[");
+                    lexicalAnalyzator.scan();
+                    result.add(new RepeatInterval(variableName, from, to, parse()));
+                    check(Kind.SPECIAL, "]");
+                    lexicalAnalyzator.scan();
+                    break;
                 default:
                 	String name = lexicalAnalyzator.getToken();
                 	lexicalAnalyzator.scan();
-                	check(Kind.SPECIAL, "=");
-                	lexicalAnalyzator.scan();
-                	result.add(new Assign(new Variable(name), parseOr()));
-                	if(vm.getVariable(name) == null) {
-                		vm.addVariable(name, 2 + vm.getVariablesLength());
-                	}
+                	if(!lexicalAnalyzator.getToken().equals("=")) {
+                        if(vm.getSubroutine(name) == null) {
+                            throw new IllegalArgumentException(name + " is unknown!");
+                        }
+                        result.add(new Call(name));
+                    } else {
+                        if(vm.getSubroutine(name) != null) {
+                            throw new IllegalArgumentException(name + " is a subroutine!");
+                        }
+                        lexicalAnalyzator.scan();
+                        result.add(new Assign(new Variable(name), parseExpression()));
+                        if (vm.getVariable(name) == null) {
+                            vm.addVariable(name, 2 + vm.getVariablesLength());
+                        }
+                    }
             }
         }
         return result;
@@ -85,7 +152,19 @@ public class TreeParser {
     }
 
     public Syntax parseExpression() {
-        return parseOr();
+        return parseTernaryIf();
+    }
+
+    private Syntax parseTernaryIf() {
+        Syntax condition = parseOr();
+        if(lexicalAnalyzator.getToken().equals("?")) {
+            lexicalAnalyzator.scan();
+            Syntax ifTrue = parseExpression();
+            check(Kind.SPECIAL, ":");
+            lexicalAnalyzator.scan();
+            return new IfExpression(condition, ifTrue, parseExpression());
+        }
+        return condition;
     }
 
     private Syntax parseOr() {
