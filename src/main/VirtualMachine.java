@@ -3,29 +3,37 @@ package main;
 import java.util.HashMap;
 import java.util.Map;
 
-import tree.Subroutine;
+import tree.identifier.Identifier;
+import tree.identifier.Subroutine;
+import tree.identifier.Variable;
 import turtle.Turtle;
 
 public class VirtualMachine {
 	private int pc = 0;
 	private int addr = 0;
 	private int top;
+	private int frame;
 	private boolean terminated = false;
 	private int[] mem;
-	private final Map<String, Integer> variables = new HashMap<>();
-	private final Map<String, Subroutine> subroutines = new HashMap<>();
+	private final Map<String, Identifier> globals = new HashMap<>();
+	private Map<String, Variable> locals = null;
+	private int globalVariableAddr = 2;
+	private int localVariableDelta;
+
 	private Turtle turtle;
 	
 	public VirtualMachine(Turtle turtle, int length) {
 		this.turtle = turtle;
 		mem = new int[length];
 		top = length;
+		frame = top;
 	}
 
 	public void reset() {
-		this.pc = 0;
+		pc = 0;
 		terminated = false;
 		top = mem.length;
+		frame = top;
 	}
 	
 	public boolean isTerminated() {
@@ -43,38 +51,49 @@ public class VirtualMachine {
 	
 	public void initMemForVariables() {
 		setMemValue(Instruction.JUMP.ordinal());
-		setMemValue(2 + getVariablesLength());
-		addr += getVariablesLength();
-	}
-	
-	public void addVariable(String name, Integer value) {
-		variables.put(name, value);
-	}
-	
-	public Integer getVariable(String name) {
-		return variables.get(name);
-	}
-	
-	public int getVariablesLength() {
-		return variables.keySet().size();
+		setMemValue(globalVariableAddr);
+		addr = globalVariableAddr;
 	}
 
-	public Subroutine getSubroutine(String name) {
-		return subroutines.get(name);
+	public Map<String, Identifier> getGlobals() {
+		return globals;
 	}
 
-	public void addSubroutine(String name, Subroutine subroutine) {
-		subroutines.put(name, subroutine);
+	public Identifier getGlobalIdentifier(String name) {
+		return globals.get(name);
 	}
 
-	/*public int getEndAddr() {
-		endAddr--;
-		return endAddr + 1;
+	public Map<String, Variable> getLocals() {
+		return locals;
 	}
 
-	public void setEndAddr(int endAddr) {
-		this.endAddr = endAddr;
-	}*/
+	public Variable getLocalVariable(String name) {
+		return locals.get(name);
+	}
+
+	public void addGlobal(String name, Identifier identifier) {
+		globals.put(name, identifier);
+	}
+
+	public void setLocals(Map<String, Variable> locals) {
+		this.locals = locals;
+	}
+
+	public int getGlobalVariableAddr() {
+		return globalVariableAddr;
+	}
+
+	public void setGlobalVariableAddr(int globalVariableAddr) {
+		this.globalVariableAddr = globalVariableAddr;
+	}
+
+	public int getLocalVariableDelta() {
+		return localVariableDelta;
+	}
+
+	public void setLocalVariableDelta(int localVariableDelta) {
+		this.localVariableDelta = localVariableDelta;
+	}
 
 	public int getCurrentAddr() {
 		return addr;
@@ -262,11 +281,29 @@ public class VirtualMachine {
 				pc++;
 				top--;
 				mem[top] = pc + 1;
+				top--;
+				mem[top] = frame;
+				frame = top;
 				pc = mem[pc];
 				break;
 			case RETURN:
-				pc = mem[top];
-				mem[top] = 0;
+				pc++;
+				top = frame + 2 + mem[pc];
+				pc = mem[frame + 1];
+				frame = mem[frame];
+				break;
+			case GET_LOCAL:
+				pc++;
+				index = frame + mem[pc];
+				pc++;
+				top--;
+				mem[top] = mem[index];
+				break;
+			case SET_LOCAL:
+				pc++;
+				index = frame + mem[pc];
+				pc++;
+				mem[index] = mem[top];
 				top++;
 				break;
 			default:

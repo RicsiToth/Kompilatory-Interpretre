@@ -1,6 +1,7 @@
 package tree;
 
 import main.VirtualMachine;
+import tree.identifier.Variable;
 
 public class Assign implements Syntax {
 	

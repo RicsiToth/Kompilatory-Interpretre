@@ -3,16 +3,22 @@ package tree;
 import main.Kind;
 import main.LexicalAnalyzator;
 import main.VirtualMachine;
-import sun.swing.PrintColorUIResource;
 import tree.binary.arithmetic.*;
 import tree.binary.logical.And;
 import tree.binary.logical.Or;
 import tree.binary.relational.*;
+import tree.identifier.GlobalVariable;
+import tree.identifier.LocalVariable;
+import tree.identifier.Subroutine;
+import tree.identifier.Variable;
 import tree.ternary.IfExpression;
 import tree.turtle.Fd;
 import tree.turtle.Lt;
 import tree.turtle.Rt;
 import tree.unary.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TreeParser {
 
@@ -85,21 +91,10 @@ public class TreeParser {
                     lexicalAnalyzator.scan();
                     break;
                 case "definuj":
-                    lexicalAnalyzator.scan();
-                    check(Kind.WORD, "");
-                    String subroutineName = lexicalAnalyzator.getToken();
-                    if (vm.getSubroutine(subroutineName) != null || vm.getVariable(subroutineName) != null) {
-                        throw new IllegalArgumentException(subroutineName + " is already in use!");
+                    if(vm.getLocals() != null) {
+                        throw new IllegalArgumentException("Wrong place of subroutine definition");
                     }
-                    lexicalAnalyzator.scan();
-                    check(Kind.SPECIAL, "[");
-                    lexicalAnalyzator.scan();
-                    Subroutine subroutine = new Subroutine();
-                    vm.addSubroutine(subroutineName, subroutine);
-                    subroutine.setBody(parse());
-                    check(Kind.SPECIAL, "]");
-                    lexicalAnalyzator.scan();
-                    result.add(subroutine);
+                    result.add(parseDefinition());
                     break;
                 case "pre":
                     lexicalAnalyzator.scan();
@@ -118,22 +113,112 @@ public class TreeParser {
                 default:
                 	String name = lexicalAnalyzator.getToken();
                 	lexicalAnalyzator.scan();
-                	if(!lexicalAnalyzator.getToken().equals("=")) {
-                        if(vm.getSubroutine(name) == null) {
-                            throw new IllegalArgumentException(name + " is unknown!");
-                        }
-                        result.add(new Call(name));
+                	if(lexicalAnalyzator.getToken().equals("=")) {
+                        result.add(parseAssign(name));
                     } else {
-                        if(vm.getSubroutine(name) != null) {
-                            throw new IllegalArgumentException(name + " is a subroutine!");
-                        }
-                        lexicalAnalyzator.scan();
-                        result.add(new Assign(new Variable(name), parseExpression()));
-                        if (vm.getVariable(name) == null) {
-                            vm.addVariable(name, 2 + vm.getVariablesLength());
-                        }
+                        result.add(parseCall(name));
                     }
             }
+        }
+        return result;
+    }
+
+    private Assign parseAssign(String name) {
+        Assign result;
+        lexicalAnalyzator.scan();
+        if(vm.getLocals() != null) {
+            if(vm.getLocalVariable(name) != null) {
+                result = new Assign(vm.getLocalVariable(name), parseExpression());
+            } else {
+                LocalVariable variable = new LocalVariable(name, vm.getLocalVariableDelta());
+                result = new Assign(variable, parseExpression());
+                vm.setLocalVariableDelta(vm.getLocalVariableDelta() - 1);
+            }
+        } else {
+            if(vm.getGlobalIdentifier(name) != null) {
+                if(!(vm.getGlobalIdentifier(name) instanceof Variable)) {
+                    throw new IllegalArgumentException(name + " is not a variable!");
+                }
+                result = new Assign((Variable) vm.getGlobalIdentifier(name), parseExpression());
+            } else {
+                GlobalVariable variable = new GlobalVariable(name, vm.getGlobalVariableAddr());
+                result = new Assign(variable, parseExpression());
+                vm.addGlobal(name, variable);
+                vm.setGlobalVariableAddr(vm.getGlobalVariableAddr() + 1);
+            }
+        }
+        return result;
+    }
+
+    private Call parseCall(String name) {
+        if(vm.getGlobalIdentifier(name) == null) {
+            throw new IllegalArgumentException("Unknown call " + name);
+        }
+        if(!(vm.getGlobalIdentifier(name) instanceof Subroutine)) {
+            throw new IllegalArgumentException(name + " is not a subroutine!");
+        }
+        Subroutine subroutine = (Subroutine) vm.getGlobalIdentifier(name);
+        Block arguments = new Block();
+        if(lexicalAnalyzator.getToken().equals("(")) {
+            lexicalAnalyzator.scan();
+            if(!lexicalAnalyzator.getToken().equals(")")) {
+                arguments.add(parseExpression());
+                while (lexicalAnalyzator.getToken().equals(",")) {
+                    lexicalAnalyzator.scan();
+                    arguments.add(parseExpression());
+                }
+            }
+            check(Kind.SPECIAL, ")");
+            lexicalAnalyzator.scan();
+        }
+        if(arguments.getSize() != subroutine.getParameterCount()) {
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+        return new Call(subroutine, arguments);
+    }
+
+    private Subroutine parseDefinition() {
+        lexicalAnalyzator.scan();
+        check(Kind.WORD, "");
+        String name = lexicalAnalyzator.getToken();
+        if (vm.getGlobalIdentifier(name) != null) {
+            throw new IllegalArgumentException(name + " is already in use!");
+        }
+        lexicalAnalyzator.scan();
+        Subroutine subroutine = new Subroutine(name, parseParams(), null);
+        vm.addGlobal(name, subroutine);
+        check(Kind.SPECIAL, "[");
+        lexicalAnalyzator.scan();
+        vm.setLocals(subroutine.getVariables());
+        vm.setLocalVariableDelta(-1);
+        subroutine.setBody(parse());
+        vm.setLocals(null);
+        check(Kind.SPECIAL, "]");
+        lexicalAnalyzator.scan();
+        return subroutine;
+    }
+
+    private Map<String, Variable> parseParams() {
+        Map<String, Variable> result = new HashMap<>();
+        if(lexicalAnalyzator.getToken().equals("(")) {
+            lexicalAnalyzator.scan();
+            if(lexicalAnalyzator.getKind() == Kind.WORD) {
+                result.put(lexicalAnalyzator.getToken(), new LocalVariable(lexicalAnalyzator.getToken(), 0));
+                lexicalAnalyzator.scan();
+                while(lexicalAnalyzator.getToken().equals(",")) {
+                    lexicalAnalyzator.scan();
+                    check(Kind.WORD, "");
+                    if(result.get(lexicalAnalyzator.getToken()) != null) {
+                        throw new IllegalArgumentException("Duplicate parameter name!");
+                    }
+                    result.put(lexicalAnalyzator.getToken(), new LocalVariable(lexicalAnalyzator.getToken(), result.size()));
+                    lexicalAnalyzator.scan();
+                }
+            }
+            check(Kind.SPECIAL, ")");
+            lexicalAnalyzator.scan();
+            int n = 1 + result.size();
+            result.entrySet().forEach(e -> e.getValue().setPosition(n - e.getValue().getPosition()));
         }
         return result;
     }
@@ -305,15 +390,22 @@ public class TreeParser {
     
     private Syntax operand() {
     	 if (lexicalAnalyzator.getKind() == Kind.WORD) {
-    		if(vm.getVariable(lexicalAnalyzator.getToken()) == null) {
-    			throw new IllegalArgumentException("There is no variable with name " + lexicalAnalyzator.getToken());
-    		}
-    		Syntax result = new Variable(lexicalAnalyzator.getToken());
-    		lexicalAnalyzator.scan();
-    		return result;
-    	} else {
-    		return number();
-    	}
+             Syntax result;
+             if(vm.getLocals() != null && vm.getLocalVariable(lexicalAnalyzator.getToken()) != null) {
+                 result = vm.getLocalVariable(lexicalAnalyzator.getToken());
+             } else if(vm.getGlobalIdentifier(lexicalAnalyzator.getToken()) != null) {
+                 result = vm.getGlobalIdentifier(lexicalAnalyzator.getToken());
+                 if(!(result instanceof Variable)) {
+                     throw new IllegalArgumentException("This is not a variable " + lexicalAnalyzator.getToken());
+                 }
+             } else {
+                 throw new IllegalArgumentException("Unknown variable with name " + lexicalAnalyzator.getToken());
+             }
+             lexicalAnalyzator.scan();
+             return result;
+         } else {
+             return number();
+         }
     }
 
     private Syntax number() {

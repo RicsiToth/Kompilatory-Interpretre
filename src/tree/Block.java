@@ -41,4 +41,8 @@ public final class Block implements Syntax {
     public int evaluate() {
         return 0;
     }
+
+    public int getSize() {
+        return instructions.size();
+    }
 }

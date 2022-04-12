@@ -2,13 +2,16 @@ package tree;
 
 import main.Instruction;
 import main.VirtualMachine;
+import tree.identifier.Subroutine;
 
 public class Call implements Syntax {
 
-    private String name;
+    private Subroutine subroutine;
+    private Block arguments;
 
-    public Call(String name) {
-        this.name = name;
+    public Call(Subroutine subroutine, Block arguments) {
+        this.subroutine = subroutine;
+        this.arguments = arguments;
     }
 
     @Override
@@ -18,8 +21,9 @@ public class Call implements Syntax {
 
     @Override
     public void generate(VirtualMachine vm) {
+        arguments.generate(vm);
         vm.setMemValue(Instruction.CALL.ordinal());
-        vm.setMemValue(vm.getSubroutine(name).getSubroutineAddr());
+        vm.setMemValue(subroutine.getSubroutineAddr());
     }
 
     @Override

@@ -163,7 +163,7 @@ public class App extends Application {
 		//InputParser inputParser = new InputParser("a = 123 vypis a");
 		//InputParser inputParser = new InputParser("a = 123 b = 12 c = a a = b b = c vypis a vypis b");
         //InputParser inputParser = new InputParser("a = 10 a = a * a vypis a");
-        InputParser inputParser = new InputParser("a = - 100 abs = a < 0 ? - a : a vypis abs");
+        InputParser inputParser = new InputParser("definuj sucet ( a , b ) [ vypis a + b ] sucet ( 3 , 7 )");
     	LexicalAnalyzator lexicalAnalyzator = new LexicalAnalyzator(inputParser);
 /*
 		interpreterSpeedTest(turtle);

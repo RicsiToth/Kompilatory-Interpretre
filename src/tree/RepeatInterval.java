@@ -22,9 +22,10 @@ public class RepeatInterval implements Syntax {
 
     }
 
+    // TODO REPAIR THIS
     @Override
     public void generate(VirtualMachine vm) {
-        from.generate(vm);
+      /*  from.generate(vm);
 
         vm.setMemValue(Instruction.JUMP.ordinal());
         int jumpToCondition = vm.getCurrentAddr();
@@ -58,7 +59,7 @@ public class RepeatInterval implements Syntax {
         body.generate(vm);
         vm.setMemValue(Instruction.JUMP.ordinal());
         vm.setMemValue(incrementAddr);
-        vm.setMemValueToAddr(jumpToAddr, vm.getCurrentAddr());
+        vm.setMemValueToAddr(jumpToAddr, vm.getCurrentAddr());*/
     }
 
     @Override

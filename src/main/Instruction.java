@@ -41,7 +41,9 @@ public enum Instruction {
 
 	JUMP_IF_FALSE, 	// 27
 	CALL,			// 28
-	RETURN;			// 29
+	RETURN,			// 29
+	GET_LOCAL,		// 30
+	SET_LOCAL;		// 31
 
 	
 	public static Instruction getInstruction(int index) {
